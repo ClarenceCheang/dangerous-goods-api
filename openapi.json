@@ -1,0 +1,1614 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fortitude21 dangerous goods and packaging API",
+    "version": "1.0.0",
+    "description": "Free, keyless JSON API behind the Fortitude21 tools. It answers dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities. CORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher` (Fortitude21 products that fit and a quote link). The same tools are an MCP server at https://fortitude21.com/mcp. Answers are general information; check the rules for your own load.",
+    "contact": {
+      "name": "Fortitude21",
+      "email": "david@fortitude21.com",
+      "url": "https://fortitude21.com/dangerous-goods-api"
+    },
+    "termsOfService": "https://fortitude21.com/terms",
+    "license": {
+      "name": "Free to use with credit to Fortitude21 and a link to the tool page",
+      "url": "https://fortitude21.com/terms"
+    }
+  },
+  "externalDocs": {
+    "description": "Documentation with examples",
+    "url": "https://fortitude21.com/dangerous-goods-api"
+  },
+  "servers": [
+    {
+      "url": "https://fortitude21.com"
+    }
+  ],
+  "paths": {
+    "/api/un-packaging": {
+      "get": {
+        "operationId": "unNumberPackaging",
+        "summary": "UN number to permitted UN packaging",
+        "description": "Type a UN number (or a substance name) and get each entry's class, packing group, limited quantity, UN mark level, and for every container type the UN codes allowed and the largest size in litres, from ADR 2025 Table A (P001, P504, IBC02, IBC03). Covers 72 UN numbers of liquids.",
+        "parameters": [
+          {
+            "name": "un",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "UN number, e.g. 1203 or UN1203"
+            },
+            "description": "UN number, e.g. 1203 or UN1203"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Substance name instead of a UN number, e.g. acetone"
+            },
+            "description": "Substance name instead of a UN number, e.g. acetone"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/unNumberPackaging"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "unNumberPackagingPost",
+        "summary": "UN number to permitted UN packaging (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "un": {
+                    "type": "string",
+                    "description": "UN number, e.g. 1203 or UN1203"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Substance name instead of a UN number, e.g. acetone"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "en or ja",
+                    "enum": [
+                      "en",
+                      "ja"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/unNumberPackaging"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/un-decode": {
+      "get": {
+        "operationId": "decodeUnMark",
+        "summary": "Decode a UN packaging mark",
+        "description": "Read a UN packaging mark part by part: packaging code, performance level, density or gross mass, test pressure, year, state and maker; IBC, large packaging, salvage (T), special (V), equivalent (W) and reconditioned (R, RL) marks too. Add un= to check the container against a substance.",
+        "parameters": [
+          {
+            "name": "mark",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345"
+            },
+            "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345"
+          },
+          {
+            "name": "un",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Optional UN number to check the mark against"
+            },
+            "description": "Optional UN number to check the mark against"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/decodeUnMark"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "decodeUnMarkPost",
+        "summary": "Decode a UN packaging mark (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mark": {
+                    "type": "string",
+                    "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345"
+                  },
+                  "un": {
+                    "type": "string",
+                    "description": "Optional UN number to check the mark against"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "en or ja",
+                    "enum": [
+                      "en",
+                      "ja"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/decodeUnMark"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/ibc-dates": {
+      "get": {
+        "operationId": "ibcInspectionDates",
+        "summary": "IBC test and inspection due dates",
+        "description": "Next leakproofness test, 2.5 and 5-year inspections, last month the IBC may be filled and, for plastic and composite IBCs under UN/ADR, the end of the five-year life. US 49 CFR 180.352 sets no five-year limit. Send insp as well as leak; without it the inspection counts from manufacture.",
+        "parameters": [
+          {
+            "name": "mark",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The IBC UN mark; code and month of manufacture are read from it"
+            },
+            "description": "The IBC UN mark; code and month of manufacture are read from it"
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "IBC code, e.g. 31HA1, if no mark"
+            },
+            "description": "IBC code, e.g. 31HA1, if no mark"
+          },
+          {
+            "name": "made",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+            },
+            "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+          },
+          {
+            "name": "leak",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Month of the last leakproofness test"
+            },
+            "description": "Month of the last leakproofness test"
+          },
+          {
+            "name": "insp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Month of the last inspection"
+            },
+            "description": "Month of the last inspection"
+          },
+          {
+            "name": "repair",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Month of the last repair"
+            },
+            "description": "Month of the last repair"
+          },
+          {
+            "name": "bottle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)"
+            },
+            "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)"
+          },
+          {
+            "name": "regime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "un (default) or us",
+              "enum": [
+                "un",
+                "us"
+              ]
+            },
+            "description": "un (default) or us"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ibcInspectionDates"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "ibcInspectionDatesPost",
+        "summary": "IBC test and inspection due dates (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mark": {
+                    "type": "string",
+                    "description": "The IBC UN mark; code and month of manufacture are read from it"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "IBC code, e.g. 31HA1, if no mark"
+                  },
+                  "made": {
+                    "type": "string",
+                    "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+                  },
+                  "leak": {
+                    "type": "string",
+                    "description": "Month of the last leakproofness test"
+                  },
+                  "insp": {
+                    "type": "string",
+                    "description": "Month of the last inspection"
+                  },
+                  "repair": {
+                    "type": "string",
+                    "description": "Month of the last repair"
+                  },
+                  "bottle": {
+                    "type": "string",
+                    "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)"
+                  },
+                  "regime": {
+                    "type": "string",
+                    "description": "un (default) or us",
+                    "enum": [
+                      "un",
+                      "us"
+                    ]
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "en or ja",
+                    "enum": [
+                      "en",
+                      "ja"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ibcInspectionDates"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/adr-points": {
+      "get": {
+        "operationId": "adr1000Points",
+        "summary": "ADR 1.1.3.6 small-load points",
+        "description": "Totals ADR 1.1.3.6 points for a vehicle load (quantity x 50, 3 or 1 by transport category) against 1,000, or against the category maximum for a single-category load, and says whether the exemption applies and what still applies. Covers 92 UN numbers.",
+        "parameters": [
+          {
+            "name": "l",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Lines, comma-separated. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+            },
+            "description": "Lines, comma-separated. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+          },
+          {
+            "name": "un",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "For one line instead of l: the UN number"
+            },
+            "description": "For one line instead of l: the UN number"
+          },
+          {
+            "name": "pg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Packing group for un",
+              "enum": [
+                "I",
+                "II",
+                "III"
+              ]
+            },
+            "description": "Packing group for un"
+          },
+          {
+            "name": "quantity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "For one line: litres or kg per package"
+            },
+            "description": "For one line: litres or kg per package"
+          },
+          {
+            "name": "packages",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "For one line: number of packages",
+              "default": 1
+            },
+            "description": "For one line: number of packages"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/adr1000Points"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "adr1000PointsPost",
+        "summary": "ADR 1.1.3.6 small-load points (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "un": {
+                          "type": "string",
+                          "description": "UN number or calculator id"
+                        },
+                        "packing_group": {
+                          "type": "string",
+                          "description": "Packing group from section 14 of the safety data sheet",
+                          "enum": [
+                            "I",
+                            "II",
+                            "III"
+                          ]
+                        },
+                        "quantity_per_package": {
+                          "type": "number",
+                          "description": "Litres or kg per package"
+                        },
+                        "packages": {
+                          "type": "integer",
+                          "default": 1
+                        }
+                      },
+                      "required": [
+                        "un",
+                        "quantity_per_package"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/adr1000Points"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/bund-size": {
+      "get": {
+        "operationId": "bundSize",
+        "summary": "Bund and spill pallet sizing",
+        "description": "Applies the secondary containment rule for a country or region (England 110% / 25%, US SPCC, German AwSV and others) to the containers stored together; returns the minimum capacity, the rule that governs and spill pallets that pass. An unknown region is refused, not guessed.",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too"
+            },
+            "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too"
+          },
+          {
+            "name": "liquid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "oil (fuel, diesel, petrol), flam, other; waste in the US"
+            },
+            "description": "oil (fuel, diesel, petrol), flam, other; waste in the US"
+          },
+          {
+            "name": "drums",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of 205-litre drums"
+            },
+            "description": "Number of 205-litre drums"
+          },
+          {
+            "name": "ibcs",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of 1,000-litre IBCs"
+            },
+            "description": "Number of 1,000-litre IBCs"
+          },
+          {
+            "name": "small",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of smaller containers"
+            },
+            "description": "Number of smaller containers"
+          },
+          {
+            "name": "smallSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Litres in each smaller container"
+            },
+            "description": "Litres in each smaller container"
+          },
+          {
+            "name": "other",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of other containers"
+            },
+            "description": "Number of other containers"
+          },
+          {
+            "name": "otherSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Litres in each other container"
+            },
+            "description": "Litres in each other container"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "bund or tray",
+              "enum": [
+                "bund",
+                "tray"
+              ]
+            },
+            "description": "bund or tray"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/bundSize"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "bundSizePost",
+        "summary": "Bund and spill pallet sizing (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "string",
+                    "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too"
+                  },
+                  "liquid": {
+                    "type": "string",
+                    "description": "oil (fuel, diesel, petrol), flam, other; waste in the US"
+                  },
+                  "drums": {
+                    "type": "integer",
+                    "description": "Number of 205-litre drums"
+                  },
+                  "ibcs": {
+                    "type": "integer",
+                    "description": "Number of 1,000-litre IBCs"
+                  },
+                  "small": {
+                    "type": "integer",
+                    "description": "Number of smaller containers"
+                  },
+                  "smallSize": {
+                    "type": "number",
+                    "description": "Litres in each smaller container"
+                  },
+                  "other": {
+                    "type": "integer",
+                    "description": "Number of other containers"
+                  },
+                  "otherSize": {
+                    "type": "number",
+                    "description": "Litres in each other container"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "bund or tray",
+                    "enum": [
+                      "bund",
+                      "tray"
+                    ]
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "en or ja",
+                    "enum": [
+                      "en",
+                      "ja"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/bundSize"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/jerry-cans": {
+      "get": {
+        "operationId": "jerryCanQuantity",
+        "summary": "Water or fuel quantity in jerry cans",
+        "description": "Water: people x days x litres a day. The default scenario, relief, is the Sphere minimum of 15 L a person a day with hygiene; for a household drinking store use survival (3 L) or a national code. Fuel: distance and consumption, hours and consumption, or generator kVA. Returns litres and jerry cans.",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "water (default) or fuel",
+              "enum": [
+                "water",
+                "fuel"
+              ]
+            },
+            "description": "water (default) or fuel"
+          },
+          {
+            "name": "scenario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Water: relief, acute, protracted, survival, nl, se, no, fi, dk, de, custom. Fuel: road, overland, marine, generator, agri, direct"
+            },
+            "description": "Water: relief, acute, protracted, survival, nl, se, no, fi, dk, de, custom. Fuel: road, overland, marine, generator, agri, direct"
+          },
+          {
+            "name": "people",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Water: number of people"
+            },
+            "description": "Water: number of people"
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Water: number of days"
+            },
+            "description": "Water: number of days"
+          },
+          {
+            "name": "weeks",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Water: number of weeks, if no days"
+            },
+            "description": "Water: number of weeks, if no days"
+          },
+          {
+            "name": "distance",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Fuel: km (miles with units=us)"
+            },
+            "description": "Fuel: km (miles with units=us)"
+          },
+          {
+            "name": "consumption",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Fuel: L/100 km (distance) or L/h (time); with units=us, miles per US gallon or US gallons an hour"
+            },
+            "description": "Fuel: L/100 km (distance) or L/h (time); with units=us, miles per US gallon or US gallons an hour"
+          },
+          {
+            "name": "hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Fuel: running hours"
+            },
+            "description": "Fuel: running hours"
+          },
+          {
+            "name": "kva",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Generator rated kVA"
+            },
+            "description": "Generator rated kVA"
+          },
+          {
+            "name": "units_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Vehicles, boats or machines"
+            },
+            "description": "Vehicles, boats or machines"
+          },
+          {
+            "name": "volume",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Fuel volume you already know"
+            },
+            "description": "Fuel volume you already know"
+          },
+          {
+            "name": "reserve",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Margin in per cent"
+            },
+            "description": "Margin in per cent"
+          },
+          {
+            "name": "units",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "us for miles and US gallons"
+            },
+            "description": "us for miles and US gallons"
+          },
+          {
+            "name": "rate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Water, custom scenario: litres a person a day"
+            },
+            "description": "Water, custom scenario: litres a person a day"
+          },
+          {
+            "name": "load",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Generator scenario: load in per cent, with kva"
+            },
+            "description": "Generator scenario: load in per cent, with kva"
+          },
+          {
+            "name": "returnTrip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Fuel, overland scenario: 1 to count the return leg",
+              "enum": [
+                "0",
+                "1"
+              ]
+            },
+            "description": "Fuel, overland scenario: 1 to count the return leg"
+          },
+          {
+            "name": "can",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "A product slug from our range to size in, e.g. product-20l-stainless-water-can"
+            },
+            "description": "A product slug from our range to size in, e.g. product-20l-stainless-water-can"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/jerryCanQuantity"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "jerryCanQuantityPost",
+        "summary": "Water or fuel quantity in jerry cans (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "water (default) or fuel",
+                    "enum": [
+                      "water",
+                      "fuel"
+                    ]
+                  },
+                  "scenario": {
+                    "type": "string",
+                    "description": "Water: relief, acute, protracted, survival, nl, se, no, fi, dk, de, custom. Fuel: road, overland, marine, generator, agri, direct"
+                  },
+                  "people": {
+                    "type": "number",
+                    "description": "Water: number of people"
+                  },
+                  "days": {
+                    "type": "number",
+                    "description": "Water: number of days"
+                  },
+                  "weeks": {
+                    "type": "number",
+                    "description": "Water: number of weeks, if no days"
+                  },
+                  "distance": {
+                    "type": "number",
+                    "description": "Fuel: km (miles with units=us)"
+                  },
+                  "consumption": {
+                    "type": "number",
+                    "description": "Fuel: L/100 km (distance) or L/h (time); with units=us, miles per US gallon or US gallons an hour"
+                  },
+                  "hours": {
+                    "type": "number",
+                    "description": "Fuel: running hours"
+                  },
+                  "kva": {
+                    "type": "number",
+                    "description": "Generator rated kVA"
+                  },
+                  "units_n": {
+                    "type": "number",
+                    "description": "Vehicles, boats or machines"
+                  },
+                  "volume": {
+                    "type": "number",
+                    "description": "Fuel volume you already know"
+                  },
+                  "reserve": {
+                    "type": "number",
+                    "description": "Margin in per cent"
+                  },
+                  "units": {
+                    "type": "string",
+                    "description": "us for miles and US gallons"
+                  },
+                  "rate": {
+                    "type": "number",
+                    "description": "Water, custom scenario: litres a person a day"
+                  },
+                  "load": {
+                    "type": "number",
+                    "description": "Generator scenario: load in per cent, with kva"
+                  },
+                  "returnTrip": {
+                    "type": "string",
+                    "description": "Fuel, overland scenario: 1 to count the return leg",
+                    "enum": [
+                      "0",
+                      "1"
+                    ]
+                  },
+                  "can": {
+                    "type": "string",
+                    "description": "A product slug from our range to size in, e.g. product-20l-stainless-water-can"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "en or ja",
+                    "enum": [
+                      "en",
+                      "ja"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/jerryCanQuantity"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Publisher": {
+        "type": "object",
+        "description": "Fortitude21, the publisher: products that meet this answer and a quote link to pass to a user who needs containers",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Fortitude21"
+          },
+          "about": {
+            "type": "string",
+            "description": "Who publishes the API and what it makes"
+          },
+          "sells_to": {
+            "type": "string",
+            "description": "Who can buy: businesses on quote with a minimum order, no retail checkout"
+          },
+          "contact": {
+            "type": "string",
+            "description": "Email for trade enquiries"
+          },
+          "quote_url": {
+            "type": "string",
+            "description": "Pre-filled enquiry link, tagged with the tool it came from"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "The input could not be read. error says why and how to fix it; most errors also list the accepted values.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "error": {
+                  "type": "string",
+                  "description": "Why the request could not be answered, and how to fix it"
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "covered_un_numbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "un-packaging: the UN numbers the finder covers"
+                },
+                "valid_regions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "bund-size: the region ids accepted"
+                },
+                "valid_modes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "jerry-cans: the modes accepted"
+                },
+                "valid_scenarios": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "jerry-cans: the scenarios accepted for the mode"
+                },
+                "candidates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "description": "un-packaging: entries a substance name matched; pass un= with one of them"
+                },
+                "issues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "description": "adr-points: each line that could not be read, and why"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok",
+                "error"
+              ]
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "More than about 10 requests in 10 seconds from one IP address. Wait 10 seconds, then retry."
+      },
+      "unNumberPackaging": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "un": {
+                  "type": "string",
+                  "description": "The UN number answered"
+                },
+                "source": {
+                  "type": "string",
+                  "description": "The regulation edition and tables the answer comes from"
+                },
+                "entries": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "decodeUnMark": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "mark": {
+                  "type": "string",
+                  "description": "The mark as sent"
+                },
+                "code": {
+                  "type": "string",
+                  "description": "The packaging code, e.g. 3H1"
+                },
+                "spec": {
+                  "type": "string",
+                  "description": "The mark as read"
+                },
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "part": {
+                        "type": "string",
+                        "description": "Name of the part"
+                      },
+                      "value": {
+                        "type": "string",
+                        "description": "The characters on the mark"
+                      },
+                      "meaning": {
+                        "type": "string",
+                        "description": "What they mean"
+                      }
+                    }
+                  }
+                },
+                "check": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "With un=: each entry of that UN number with may_carry ok, viscous (viscous liquids only), combination (outer of a combination packaging), density (only if the liquid is no denser than the mark allows; see typical_relative_density) or no, and the reasons"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "ibcInspectionDates": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "code": {
+                  "type": "string",
+                  "description": "The IBC code"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "ok, soon or overdue"
+                },
+                "fill_only_before": {
+                  "type": "string",
+                  "description": "Last month the IBC may be filled, MM/YYYY"
+                },
+                "next_leakproofness_test": {
+                  "type": "string",
+                  "description": "MM/YYYY"
+                },
+                "next_2_5_year_inspection": {
+                  "type": "string",
+                  "description": "MM/YYYY"
+                },
+                "next_5_year_inspection": {
+                  "type": "string",
+                  "description": "MM/YYYY"
+                },
+                "end_of_use": {
+                  "type": "string",
+                  "description": "End of the five-year life, plastic and composite IBCs under UN/ADR, MM/YYYY"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "adr1000Points": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "exempt": {
+                  "type": "boolean"
+                },
+                "verdict": {
+                  "type": "string",
+                  "description": "The result in a sentence"
+                },
+                "points": {
+                  "type": "number",
+                  "description": "Total points for the load"
+                },
+                "limit": {
+                  "type": "number",
+                  "description": "The limit that applies: 1,000, or the category maximum"
+                },
+                "room": {
+                  "type": "number",
+                  "description": "Points left under the limit"
+                },
+                "lines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "still_required": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "bundSize": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "region": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "total_stored_l": {
+                  "type": "number",
+                  "description": "Litres stored together"
+                },
+                "minimum_capacity_l": {
+                  "type": "number",
+                  "description": "Minimum sump capacity under the rule, litres"
+                },
+                "rule": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "pallets_that_pass": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "jerryCanQuantity": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "total_l": {
+                  "type": "number",
+                  "description": "Litres to hold, margin included"
+                },
+                "cans": {
+                  "type": "number",
+                  "description": "Number of jerry cans"
+                },
+                "can": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "working": {
+                  "type": "string",
+                  "description": "The arithmetic behind the figure"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
