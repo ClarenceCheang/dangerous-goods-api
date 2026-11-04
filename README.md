@@ -340,11 +340,13 @@ Due dates count from the current month, so this answer changes over time.
 
 ## MCP server
 
-The same six tools run as a remote MCP server:
+The remote MCP server runs the six tools above plus eight tools over the Fortitude21 product catalogue.
 
 - Endpoint: `https://fortitude21.com/mcp`
 - Transport: Streamable HTTP (POST, JSON-RPC 2.0). No auth.
-- Tools: `un_number_packaging`, `decode_un_packaging_mark`, `ibc_inspection_dates`, `adr_1000_points`, `bund_size`, `jerry_can_quantity`. All six are read-only.
+- Dangerous goods tools, all read-only: `un_number_packaging`, `decode_un_packaging_mark`, `ibc_inspection_dates`, `adr_1000_points`, `bund_size`, `jerry_can_quantity`.
+- Catalogue tools: `search_products`, `get_product_details`, `compare_products`, `check_product_requirements`, `get_product_documents`, `get_product_pricing` and `get_product_categories` are read-only. `create_quote_request` sends an enquiry for a person at Fortitude21 to price. It needs the buyer's consent and creates no order. Docs: https://fortitude21.com/products-api
+- `https://fortitude21.com/mcp/directory` serves the six dangerous goods tools only.
 - A plain GET on the endpoint returns a JSON description of the server.
 - Listed in the official MCP Registry as `com.fortitude21/dangerous-goods`.
 
