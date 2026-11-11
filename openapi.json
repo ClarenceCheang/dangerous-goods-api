@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Fortitude21 dangerous goods and packaging API",
-    "version": "1.0.0",
-    "description": "Free, keyless JSON API behind the Fortitude21 tools. It answers dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities. CORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher` (Fortitude21 products that fit and a quote link). The same tools are an MCP server at https://fortitude21.com/mcp. Answers are general information; check the rules for your own load.",
+    "title": "Fortitude21 API: dangerous goods tools and product catalogue",
+    "version": "1.1.0",
+    "description": "Free, keyless JSON API from Fortitude21, in two halves.\n\nThe tools answer dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities.\n\nThe catalogue under /api/v1/ covers what Fortitude21 makes: steel, stainless, aluminium, tinplate and UN-rated HDPE jerry cans, pails, tins, drums, spill pallets, closures and handling equipment. Search and filter by material, capacity, certification and application, fetch one product in full, compare products on the attributes they all publish, read indicative pricing, list documentation, and send a quotation request.\n\nCORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher`. The same tools are an MCP server at https://fortitude21.com/mcp.\n\nTwo things to rely on: the catalogue is read-only, with no write path at any version, and any price is indicative and never a quotation. The quotation request creates an enquiry for a person to price, not an order. Tool answers are general information; check the rules for your own load.",
     "contact": {
       "name": "Fortitude21",
       "email": "david@fortitude21.com",
@@ -29,7 +29,7 @@
       "get": {
         "operationId": "unNumberPackaging",
         "summary": "UN number to permitted UN packaging",
-        "description": "Type a UN number (or a substance name) and get each entry's class, packing group, limited quantity, UN mark level, and for every container type the UN codes allowed and the largest size in litres, from ADR 2025 Table A (P001, P504, IBC02, IBC03). Covers 72 UN numbers of liquids.",
+        "description": "Type a UN number (or a substance name) and get each entry's class, packing group, limited quantity, UN mark level, and for every container type the UN codes allowed and the largest size in litres, from ADR 2025 Table A (P001, P504, IBC02, IBC03). Covers 157 UN numbers of liquids.",
         "parameters": [
           {
             "name": "un",
@@ -429,9 +429,9 @@
             "required": false,
             "schema": {
               "type": "string",
-              "description": "Lines, comma-separated. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+              "description": "Lines, comma-separated; every line is counted. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
             },
-            "description": "Lines, comma-separated. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+            "description": "Lines, comma-separated; every line is counted. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
           },
           {
             "name": "un",
@@ -1101,6 +1101,535 @@
           }
         }
       }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "searchProducts",
+        "summary": "Search the product catalogue",
+        "description": "Search Fortitude21 jerry cans, pails, tins, drums, spill pallets, closures and handling equipment. Filter by material, capacity in litres, category, application, certification and pricing type. Terms and filters combine with AND; a product with no value for a filtered attribute is excluded.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Free text, e.g. \"20 litre steel fuel can\""
+            },
+            "description": "Free text, e.g. \"20 litre steel fuel can\""
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Category slug: nato-military-jerry-cans, fuel-and-gas-cans, water-and-food-grade-cans, oil-and-workshop-dispensing, horizontal-and-underseat-cans, industrial-and-chemical, sealing-and-closures, pouring-and-transfer, mounting-and-handling, spill-containment, pails-and-buckets, tins-and-small-cans"
+            },
+            "description": "Category slug: nato-military-jerry-cans, fuel-and-gas-cans, water-and-food-grade-cans, oil-and-workshop-dispensing, horizontal-and-underseat-cans, industrial-and-chemical, sealing-and-closures, pouring-and-transfer, mounting-and-handling, spill-containment, pails-and-buckets, tins-and-small-cans"
+          },
+          {
+            "name": "material",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "hdpe, polypropylene, polyethylene, stainless, steel, galvanised, aluminium, tinplate, plastic or metal. Resolved to the material family, so hdpe does not return polypropylene"
+            },
+            "description": "hdpe, polypropylene, polyethylene, stainless, steel, galvanised, aluminium, tinplate, plastic or metal. Resolved to the material family, so hdpe does not return polypropylene"
+          },
+          {
+            "name": "capacity_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Minimum capacity in litres"
+            },
+            "description": "Minimum capacity in litres"
+          },
+          {
+            "name": "capacity_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Maximum capacity in litres"
+            },
+            "description": "Maximum capacity in litres"
+          },
+          {
+            "name": "application",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Intended use, e.g. defence, agriculture, marine"
+            },
+            "description": "Intended use, e.g. defence, agriculture, marine"
+          },
+          {
+            "name": "certification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "UN, or a design code such as 3H1 or 3A1"
+            },
+            "description": "UN, or a design code such as 3H1 or 3A1"
+          },
+          {
+            "name": "min_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Lowest indicative unit price"
+            },
+            "description": "Lowest indicative unit price"
+          },
+          {
+            "name": "max_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Highest indicative unit price"
+            },
+            "description": "Highest indicative unit price"
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Three-letter code, e.g. SGD"
+            },
+            "description": "Three-letter code, e.g. SGD"
+          },
+          {
+            "name": "pricing_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Pricing visibility",
+              "enum": [
+                "PUBLIC_PRICE",
+                "STARTING_FROM",
+                "PRICE_ON_REQUEST",
+                "CONTRACT_PRICE"
+              ]
+            },
+            "description": "Pricing visibility"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Result order",
+              "enum": [
+                "relevance",
+                "capacity",
+                "capacity_desc",
+                "price",
+                "name"
+              ]
+            },
+            "description": "Result order"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Page number from 1"
+            },
+            "description": "Page number from 1"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Results per page, up to 100",
+              "default": 20
+            },
+            "description": "Results per page, up to 100"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchProducts"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/products/compare": {
+      "get": {
+        "operationId": "compareProducts",
+        "summary": "Compare products attribute by attribute",
+        "description": "Compare two to six products on the attributes they all publish. Rows every product has a value for come back as comparable; the rest are listed apart with the products missing a value named, so a blank is never read as a worse figure. No product is ranked against another.",
+        "parameters": [
+          {
+            "name": "skus",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Two to six part numbers or slugs, comma separated"
+            },
+            "description": "Two to six part numbers or slugs, comma separated"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/compareProducts"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "operationId": "getProduct",
+        "summary": "One product in full",
+        "description": "The complete published record: identity, typed specifications with the provenance of each figure, the full spec table, orderable units and part numbers, images, documents available on request and pricing. A field the factory has not supplied reads as available on request, not omitted.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/getProduct"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/products/{id}/pricing": {
+      "get": {
+        "operationId": "getProductPricing",
+        "summary": "Indicative pricing for one product",
+        "description": "Pricing type, currency, minimum order quantity, the quantity bands and any approved indicative unit price per band, validity, Incoterms and lead time. Any price is indicative, never a quotation: binding is always false and the top band is always a quotation. Most products are priced on request.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quantity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Units, to get the band that applies"
+            },
+            "description": "Units, to get the band that applies"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/getProductPricing"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/products/{id}/documents": {
+      "get": {
+        "operationId": "getProductDocuments",
+        "summary": "Documentation for one product",
+        "description": "Which documents exist for a product and how to request them: UN certificate and test report, mill certificate for a stainless grade, food-contact declaration, specification sheet and drawing. Nothing is a generic download: documents are issued against one design and production run.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/getProductDocuments"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/categories": {
+      "get": {
+        "operationId": "getProductCategories",
+        "summary": "Product categories",
+        "description": "The twelve categories with slugs, taglines and product counts, in two families: container, what the liquid sits in, and system, everything around it. Use a slug to filter the product search.",
+        "parameters": [
+          {
+            "name": "family",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Limit to one family",
+              "enum": [
+                "container",
+                "system"
+              ]
+            },
+            "description": "Limit to one family"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/getProductCategories"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/v1/rfq": {
+      "post": {
+        "operationId": "createQuoteRequest",
+        "summary": "Send a quotation request",
+        "description": "Submit a quotation request for one or more products and get a reference back. It creates an enquiry for a person to price: no price is accepted, no stock confirmed, no delivery date committed and no order created. Every part number is validated and the information still needed is named back.",
+        "x-openai-isConsequential": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "consent",
+                  "company",
+                  "contact_name",
+                  "email",
+                  "lines"
+                ],
+                "properties": {
+                  "consent": {
+                    "type": "boolean",
+                    "description": "Must be true. Confirms the buyer agreed to their contact details being sent to Fortitude21"
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Buying company name"
+                  },
+                  "contact_name": {
+                    "type": "string",
+                    "description": "Person to reply to"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Business email address for the reply"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Buyer country"
+                  },
+                  "delivery_destination": {
+                    "type": "string",
+                    "description": "Port or city the goods ship to"
+                  },
+                  "incoterms": {
+                    "type": "string",
+                    "description": "Preferred Incoterm, e.g. FOB, CIF, DDP"
+                  },
+                  "required_date": {
+                    "type": "string",
+                    "description": "Required delivery date, YYYY-MM-DD"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "The agent or integration sending this, for the enquiry log"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Anything else the quotation should account for"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "description": "One entry per product",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "sku",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "sku": {
+                          "type": "string",
+                          "description": "An F21 part number or product slug"
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "description": "Units required"
+                        },
+                        "specification": {
+                          "type": "string",
+                          "description": "Colour, branding, closure, gauge, anything specified"
+                        },
+                        "certification": {
+                          "type": "string",
+                          "description": "Certification the destination market requires"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Received. Not a quotation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "reference": {
+                      "type": "string",
+                      "description": "Quote the reference in any follow-up"
+                    },
+                    "missing_information": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "What a quotation still needs"
+                    },
+                    "price_accepted": {
+                      "type": "boolean",
+                      "description": "Always false"
+                    },
+                    "stock_confirmed": {
+                      "type": "boolean",
+                      "description": "Always false"
+                    },
+                    "delivery_date_committed": {
+                      "type": "boolean",
+                      "description": "Always false"
+                    },
+                    "order_created": {
+                      "type": "boolean",
+                      "description": "Always false"
+                    },
+                    "next_step": {
+                      "type": "string",
+                      "description": "What happens next"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "description": "The body is over 64 KB. A quotation request carries at most 20 lines and 3,000 characters of notes. Do not retry unchanged."
+          },
+          "429": {
+            "description": "Rate limited. From the zone rule (about 10 requests in 10 seconds from one IP: wait 10 seconds) or the enquiry limit (10 enquiries an hour from one address, shared with the contact form: the Retry-After header gives the wait in seconds). Send each quotation request on its own: inside an MCP batch it is refused.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before sending another enquiry",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The request was not accepted because of a fault on our side. Retry, or email david@fortitude21.com."
+          },
+          "503": {
+            "description": "The enquiry store could not save the request, so it was not accepted. retry is true: try again later, or email david@fortitude21.com."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1217,6 +1746,318 @@
       },
       "RateLimited": {
         "description": "More than about 10 requests in 10 seconds from one IP address. Wait 10 seconds, then retry."
+      },
+      "searchProducts": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "total": {
+                  "type": "number",
+                  "description": "Products matching every term and filter"
+                },
+                "page": {
+                  "type": "number",
+                  "description": "Page returned"
+                },
+                "pages": {
+                  "type": "number",
+                  "description": "Pages available"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "query": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "How the query was read, including synonyms used and any term no product mentions"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "compareProducts": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "comparable": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "partial": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "note": {
+                  "type": "string",
+                  "description": "Why no ranking is given"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "getProduct": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "The product record, including a pricing block that is never binding"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "getProductPricing": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "pricing": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "Bands, terms, binding: false and the disclaimer"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "getProductDocuments": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "hosted": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Always empty; see note"
+                },
+                "available_on_request": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "request_url": {
+                  "type": "string",
+                  "description": "Where to ask for them"
+                },
+                "note": {
+                  "type": "string",
+                  "description": "Why nothing is published as a generic file"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "getProductCategories": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "total": {
+                  "type": "number",
+                  "description": "Categories returned"
+                },
+                "categories": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "families": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
       },
       "unNumberPackaging": {
         "description": "The answer",
