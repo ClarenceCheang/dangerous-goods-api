@@ -6,7 +6,7 @@
     "description": "Free, keyless JSON API from Fortitude21, in two halves.\n\nThe tools answer dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities.\n\nThe catalogue under /api/v1/ covers what Fortitude21 makes: steel, stainless, aluminium, tinplate and UN-rated HDPE jerry cans, pails, tins, drums, spill pallets, closures and handling equipment. Search and filter by material, capacity, certification and application, fetch one product in full, compare products on the attributes they all publish, read indicative pricing, list documentation, and send a quotation request.\n\nCORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher`. The same tools are an MCP server at https://fortitude21.com/mcp.\n\nTwo things to rely on: the catalogue is read-only, with no write path at any version, and any price is indicative and never a quotation. The quotation request creates an enquiry for a person to price, not an order. Tool answers are general information; check the rules for your own load.",
     "contact": {
       "name": "Fortitude21",
-      "email": "david@fortitude21.com",
+      "email": "David@fortitude21.com",
       "url": "https://fortitude21.com/dangerous-goods-api"
     },
     "termsOfService": "https://fortitude21.com/terms",
@@ -1623,10 +1623,10 @@
             }
           },
           "500": {
-            "description": "The request was not accepted because of a fault on our side. Retry, or email david@fortitude21.com."
+            "description": "The request was not accepted because of a fault on our side. Retry, or email David@fortitude21.com."
           },
           "503": {
-            "description": "The enquiry store could not save the request, so it was not accepted. retry is true: try again later, or email david@fortitude21.com."
+            "description": "The enquiry store could not save the request, so it was not accepted. retry is true: try again later, or email David@fortitude21.com."
           }
         }
       }
