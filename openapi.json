@@ -39,7 +39,8 @@
               "type": "string",
               "description": "UN number, e.g. 1203 or UN1203"
             },
-            "description": "UN number, e.g. 1203 or UN1203"
+            "description": "UN number, e.g. 1203 or UN1203",
+            "example": "1203"
           },
           {
             "name": "name",
@@ -49,7 +50,8 @@
               "type": "string",
               "description": "Substance name instead of a UN number, e.g. acetone"
             },
-            "description": "Substance name instead of a UN number, e.g. acetone"
+            "description": "Substance name instead of a UN number, e.g. acetone",
+            "example": "acetone"
           },
           {
             "name": "lang",
@@ -63,7 +65,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -139,7 +142,8 @@
               "type": "string",
               "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345"
             },
-            "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345"
+            "description": "The mark as printed, e.g. UN 3H1/Y1.9/150/26/D/BAM 12345",
+            "example": "UN 3H1/Y1.9/150/26/D/BAM 12345"
           },
           {
             "name": "un",
@@ -149,7 +153,8 @@
               "type": "string",
               "description": "Optional UN number to check the mark against"
             },
-            "description": "Optional UN number to check the mark against"
+            "description": "Optional UN number to check the mark against",
+            "example": "1203"
           },
           {
             "name": "lang",
@@ -163,7 +168,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -239,7 +245,8 @@
               "type": "string",
               "description": "The IBC UN mark; code and month of manufacture are read from it"
             },
-            "description": "The IBC UN mark; code and month of manufacture are read from it"
+            "description": "The IBC UN mark; code and month of manufacture are read from it",
+            "example": "UN 31HA1/Y/09 25/NL/VL835/10800/1200"
           },
           {
             "name": "code",
@@ -247,9 +254,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "description": "IBC code, e.g. 31HA1, if no mark"
+              "description": "IBC code, e.g. 31HA1. Read from the mark if one is sent; a code sent as well wins"
             },
-            "description": "IBC code, e.g. 31HA1, if no mark"
+            "description": "IBC code, e.g. 31HA1. Read from the mark if one is sent; a code sent as well wins",
+            "example": "31HA1"
           },
           {
             "name": "made",
@@ -257,9 +265,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+              "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\". Read from the mark if one is sent; a month sent as well wins"
             },
-            "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+            "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\". Read from the mark if one is sent; a month sent as well wins",
+            "example": "03/24"
           },
           {
             "name": "leak",
@@ -269,7 +278,8 @@
               "type": "string",
               "description": "Month of the last leakproofness test"
             },
-            "description": "Month of the last leakproofness test"
+            "description": "Month of the last leakproofness test",
+            "example": "03/26"
           },
           {
             "name": "insp",
@@ -279,7 +289,8 @@
               "type": "string",
               "description": "Month of the last inspection"
             },
-            "description": "Month of the last inspection"
+            "description": "Month of the last inspection",
+            "example": "03/26"
           },
           {
             "name": "repair",
@@ -289,7 +300,8 @@
               "type": "string",
               "description": "Month of the last repair"
             },
-            "description": "Month of the last repair"
+            "description": "Month of the last repair",
+            "example": "03/26"
           },
           {
             "name": "bottle",
@@ -299,7 +311,8 @@
               "type": "string",
               "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)"
             },
-            "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)"
+            "description": "Month the inner receptacle was replaced (remanufactured composite IBCs)",
+            "example": "03/26"
           },
           {
             "name": "regime",
@@ -327,7 +340,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -361,11 +375,11 @@
                   },
                   "code": {
                     "type": "string",
-                    "description": "IBC code, e.g. 31HA1, if no mark"
+                    "description": "IBC code, e.g. 31HA1. Read from the mark if one is sent; a code sent as well wins"
                   },
                   "made": {
                     "type": "string",
-                    "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\""
+                    "description": "Month of manufacture: MM/YYYY, MM/YY, YYYY-MM or \"March 2024\". Read from the mark if one is sent; a month sent as well wins"
                   },
                   "leak": {
                     "type": "string",
@@ -429,9 +443,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "description": "Lines, comma-separated; every line is counted. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+              "description": "Comma-separated lines, all counted. Each line, colon-separated: UN number, packing group if the UN number is in more than one transport category, L or kg per package, number of packages. E.g. 1203:20:10 or 1263:II:20:5. An unreadable line stops the answer."
             },
-            "description": "Lines, comma-separated; every line is counted. Each line: UN number, packing group where the UN number has entries in more than one transport category, quantity per package (L or kg), number of packages, colon-separated. Examples: 1203:20:10 and 1263:II:20:5. A line that cannot be read stops the whole answer."
+            "description": "Comma-separated lines, all counted. Each line, colon-separated: UN number, packing group if the UN number is in more than one transport category, L or kg per package, number of packages. E.g. 1203:20:10 or 1263:II:20:5. An unreadable line stops the answer.",
+            "example": "1203:20:10,1263:II:20:5"
           },
           {
             "name": "un",
@@ -441,7 +456,8 @@
               "type": "string",
               "description": "For one line instead of l: the UN number"
             },
-            "description": "For one line instead of l: the UN number"
+            "description": "For one line instead of l: the UN number",
+            "example": "1203"
           },
           {
             "name": "pg",
@@ -456,7 +472,8 @@
                 "III"
               ]
             },
-            "description": "Packing group for un"
+            "description": "Packing group for un",
+            "example": "II"
           },
           {
             "name": "quantity",
@@ -466,7 +483,8 @@
               "type": "number",
               "description": "For one line: litres or kg per package"
             },
-            "description": "For one line: litres or kg per package"
+            "description": "For one line: litres or kg per package",
+            "example": 20
           },
           {
             "name": "packages",
@@ -477,7 +495,8 @@
               "description": "For one line: number of packages",
               "default": 1
             },
-            "description": "For one line: number of packages"
+            "description": "For one line: number of packages",
+            "example": 10
           },
           {
             "name": "lang",
@@ -491,7 +510,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -584,7 +604,8 @@
               "type": "string",
               "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too"
             },
-            "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too"
+            "description": "Region id or name: gb-eng, gb-wls, gb-sct, gb-nir, ie, de, fr, nl, es, us, ca, au, nz, sg, jp, world; names such as England, USA, Texas or Germany are read too",
+            "example": "gb-eng"
           },
           {
             "name": "liquid",
@@ -594,7 +615,8 @@
               "type": "string",
               "description": "oil (fuel, diesel, petrol), flam, other; waste in the US"
             },
-            "description": "oil (fuel, diesel, petrol), flam, other; waste in the US"
+            "description": "oil (fuel, diesel, petrol), flam, other; waste in the US",
+            "example": "oil"
           },
           {
             "name": "drums",
@@ -604,7 +626,8 @@
               "type": "integer",
               "description": "Number of 205-litre drums"
             },
-            "description": "Number of 205-litre drums"
+            "description": "Number of 205-litre drums",
+            "example": 4
           },
           {
             "name": "ibcs",
@@ -614,7 +637,8 @@
               "type": "integer",
               "description": "Number of 1,000-litre IBCs"
             },
-            "description": "Number of 1,000-litre IBCs"
+            "description": "Number of 1,000-litre IBCs",
+            "example": 1
           },
           {
             "name": "small",
@@ -682,7 +706,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -794,7 +819,8 @@
                 "fuel"
               ]
             },
-            "description": "water (default) or fuel"
+            "description": "water (default) or fuel",
+            "example": "water"
           },
           {
             "name": "scenario",
@@ -814,7 +840,8 @@
               "type": "number",
               "description": "Water: number of people"
             },
-            "description": "Water: number of people"
+            "description": "Water: number of people",
+            "example": 4
           },
           {
             "name": "days",
@@ -824,7 +851,8 @@
               "type": "number",
               "description": "Water: number of days"
             },
-            "description": "Water: number of days"
+            "description": "Water: number of days",
+            "example": 14
           },
           {
             "name": "weeks",
@@ -972,7 +1000,8 @@
                 "ja"
               ]
             },
-            "description": "en or ja"
+            "description": "en or ja",
+            "example": "en"
           }
         ],
         "responses": {
@@ -1116,7 +1145,8 @@
               "type": "string",
               "description": "Free text, e.g. \"20 litre steel fuel can\""
             },
-            "description": "Free text, e.g. \"20 litre steel fuel can\""
+            "description": "Free text, e.g. \"20 litre steel fuel can\"",
+            "example": "stainless"
           },
           {
             "name": "category",
@@ -1126,7 +1156,8 @@
               "type": "string",
               "description": "Category slug: nato-military-jerry-cans, fuel-and-gas-cans, water-and-food-grade-cans, oil-and-workshop-dispensing, horizontal-and-underseat-cans, industrial-and-chemical, sealing-and-closures, pouring-and-transfer, mounting-and-handling, spill-containment, pails-and-buckets, tins-and-small-cans"
             },
-            "description": "Category slug: nato-military-jerry-cans, fuel-and-gas-cans, water-and-food-grade-cans, oil-and-workshop-dispensing, horizontal-and-underseat-cans, industrial-and-chemical, sealing-and-closures, pouring-and-transfer, mounting-and-handling, spill-containment, pails-and-buckets, tins-and-small-cans"
+            "description": "Category slug: nato-military-jerry-cans, fuel-and-gas-cans, water-and-food-grade-cans, oil-and-workshop-dispensing, horizontal-and-underseat-cans, industrial-and-chemical, sealing-and-closures, pouring-and-transfer, mounting-and-handling, spill-containment, pails-and-buckets, tins-and-small-cans",
+            "example": "spill-containment"
           },
           {
             "name": "material",
@@ -1136,7 +1167,8 @@
               "type": "string",
               "description": "hdpe, polypropylene, polyethylene, stainless, steel, galvanised, aluminium, tinplate, plastic or metal. Resolved to the material family, so hdpe does not return polypropylene"
             },
-            "description": "hdpe, polypropylene, polyethylene, stainless, steel, galvanised, aluminium, tinplate, plastic or metal. Resolved to the material family, so hdpe does not return polypropylene"
+            "description": "hdpe, polypropylene, polyethylene, stainless, steel, galvanised, aluminium, tinplate, plastic or metal. Resolved to the material family, so hdpe does not return polypropylene",
+            "example": "hdpe"
           },
           {
             "name": "capacity_min",
@@ -1146,7 +1178,8 @@
               "type": "number",
               "description": "Minimum capacity in litres"
             },
-            "description": "Minimum capacity in litres"
+            "description": "Minimum capacity in litres",
+            "example": 20
           },
           {
             "name": "capacity_max",
@@ -1156,7 +1189,8 @@
               "type": "number",
               "description": "Maximum capacity in litres"
             },
-            "description": "Maximum capacity in litres"
+            "description": "Maximum capacity in litres",
+            "example": 25
           },
           {
             "name": "application",
@@ -1176,7 +1210,8 @@
               "type": "string",
               "description": "UN, or a design code such as 3H1 or 3A1"
             },
-            "description": "UN, or a design code such as 3H1 or 3A1"
+            "description": "UN, or a design code such as 3H1 or 3A1",
+            "example": "UN"
           },
           {
             "name": "min_price",
@@ -1294,7 +1329,8 @@
               "type": "string",
               "description": "Two to six part numbers or slugs, comma separated"
             },
-            "description": "Two to six part numbers or slugs, comma separated"
+            "description": "Two to six part numbers or slugs, comma separated",
+            "example": "F21-NF-20,F21-NX-20"
           }
         ],
         "responses": {
@@ -1327,7 +1363,8 @@
             "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "F21-NF-20"
           }
         ],
         "responses": {
@@ -1360,7 +1397,8 @@
             "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "F21-NF-20"
           },
           {
             "name": "quantity",
@@ -1370,7 +1408,8 @@
               "type": "integer",
               "description": "Units, to get the band that applies"
             },
-            "description": "Units, to get the band that applies"
+            "description": "Units, to get the band that applies",
+            "example": 500
           }
         ],
         "responses": {
@@ -1403,7 +1442,8 @@
             "description": "An F21 part number such as F21-NF-20, or a product slug such as product-20l-nato-steel-fuel-can",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "F21-NF-20"
           }
         ],
         "responses": {
@@ -1441,7 +1481,8 @@
                 "system"
               ]
             },
-            "description": "Limit to one family"
+            "description": "Limit to one family",
+            "example": "container"
           }
         ],
         "responses": {
@@ -1612,7 +1653,7 @@
             "description": "The body is over 64 KB. A quotation request carries at most 20 lines and 3,000 characters of notes. Do not retry unchanged."
           },
           "429": {
-            "description": "Rate limited. From the zone rule (about 10 requests in 10 seconds from one IP: wait 10 seconds) or the enquiry limit (10 enquiries an hour from one address, shared with the contact form: the Retry-After header gives the wait in seconds). Send each quotation request on its own: inside an MCP batch it is refused.",
+            "description": "Rate limited: about 10 requests in 10 seconds per IP (wait 10 seconds), or 10 enquiries an hour per address, shared with the contact form (Retry-After gives the wait in seconds). Send each quotation request on its own: inside an MCP batch it is refused.",
             "headers": {
               "Retry-After": {
                 "description": "Seconds to wait before sending another enquiry",
