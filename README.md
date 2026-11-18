@@ -1,6 +1,6 @@
 # Fortitude21 Dangerous Goods API and MCP Server
 
-A free JSON API and remote MCP server for dangerous goods packaging questions. Send a UN number and get the UN drums, jerricans and IBCs it may use under ADR 2025, with the largest size of each. Decode a UN packaging mark part by part and check it against a substance. Total the ADR 1.1.3.6 points for a small load. Work out when an IBC's leakproofness test and 2.5 and 5-year inspections fall due. Size a bund or spill pallet under a country's rule. Turn people and days, or distance and fuel use, into a count of jerry cans. There is no key and no sign-up, and CORS is open. Each answer names the regulation it rests on and links to the same answer on fortitude21.com.
+A free JSON API and remote MCP server for dangerous goods packaging questions. Send a UN number and get the UN drums, jerricans and IBCs it may use under ADR 2025, with the largest size of each. Decode a UN packaging mark part by part and check it against a substance. Total the ADR 1.1.3.6 points for a small load. Work out when an IBC's leakproofness test and 2.5 and 5-year inspections fall due. Size a bund or spill pallet under a country's rule. Turn people and days, or distance and fuel use, into a count of jerry cans. Work out the EU CBAM certificates and their cost, or the UK CBAM liability, on imported steel, aluminium, cement, fertiliser and hydrogen. There is no key and no sign-up, and CORS is open. Each answer names the regulation it rests on and links to the same answer on fortitude21.com.
 
 - Docs with examples: https://fortitude21.com/dangerous-goods-api
 - OpenAPI 3.1: https://fortitude21.com/openapi.json (a copy is in [openapi.json](openapi.json))
@@ -12,12 +12,14 @@ A free JSON API and remote MCP server for dangerous goods packaging questions. S
 
 | Endpoint | MCP tool | What it answers | Example |
 | --- | --- | --- | --- |
-| `/api/un-packaging` | `un_number_packaging` | Which UN jerricans, drums and IBCs a UN number may use, and the largest size of each, from ADR 2025 Table A and its packing instructions. Covers 72 UN numbers of liquids. Takes `un` or a substance `name`. | [`?un=1203`](https://fortitude21.com/api/un-packaging?un=1203) |
+| `/api/un-packaging` | `un_number_packaging` | Which UN jerricans, drums and IBCs a UN number may use, and the largest size of each, from ADR 2025 Table A and its packing instructions. Covers 157 UN numbers of liquids. Takes `un` or a substance `name`. | [`?un=1203`](https://fortitude21.com/api/un-packaging?un=1203) |
 | `/api/un-decode` | `decode_un_packaging_mark` | What each part of a UN packaging mark means. Add `un` to check whether the container may carry that substance. | [`?mark=UN 3H1/Y1.9/150/26/D/BAM 12345&un=1203`](https://fortitude21.com/api/un-decode?mark=UN%203H1/Y1.9/150/26/D/BAM%2012345&un=1203) |
 | `/api/ibc-dates` | `ibc_inspection_dates` | When an IBC's leakproofness test and 2.5 and 5-year inspections fall due, the last month it may be filled and, for plastic and composite IBCs under UN/ADR, the end of its five-year life. `regime=us` applies 49 CFR 180.352. | [`?code=31HA1&made=06/25`](https://fortitude21.com/api/ibc-dates?code=31HA1&made=06/25) |
 | `/api/adr-points` | `adr_1000_points` | The ADR 1.1.3.6 points for a vehicle load, whether it stays within the small-load exemption, and what still applies. Covers 92 UN numbers. | [`?l=1203:20:10,1263:II:20:5`](https://fortitude21.com/api/adr-points?l=1203:20:10,1263:II:20:5) |
 | `/api/bund-size` | `bund_size` | The sump capacity a bund or spill pallet needs under a country's or region's rule, and the rule that governs. Rules for England, Wales, Scotland, Northern Ireland, Ireland, Germany, France, the Netherlands, Spain, the US, Canada, Australia, New Zealand, Singapore and Japan, plus `world`. | [`?region=gb-eng&drums=4&ibcs=1`](https://fortitude21.com/api/bund-size?region=gb-eng&drums=4&ibcs=1) |
 | `/api/jerry-cans` | `jerry_can_quantity` | How much water or fuel to hold for a scenario, with a margin, and how many jerry cans that takes. | [`?mode=water&people=4&days=14&scenario=survival`](https://fortitude21.com/api/jerry-cans?mode=water&people=4&days=14&scenario=survival) |
+| `/api/cbam` | `cbam_cost` | The EU CBAM certificates owed on imported goods after the free allocation adjustment, their cost at the official price for the period of import, and the 50-tonne annual threshold, on EU default values. Takes a CN code or words, an ISO code or country name, and tonnes. | [`?cn=7310&origin=CN&tonnes=10&period=2026-Q1`](https://fortitude21.com/api/cbam?cn=7310&origin=CN&tonnes=10&period=2026-Q1) |
+| `/api/uk-cbam` | `uk_cbam_cost` | The UK CBAM liability in pounds on goods imported from 1 January 2027, by commodity code, with the £50,000 threshold. Add `origin` for the EU figure on the same goods. | [`?code=73102990&tonnes=10&origin=CN`](https://fortitude21.com/api/uk-cbam?code=73102990&tonnes=10&origin=CN) |
 
 The parameters and their accepted values are in [openapi.json](openapi.json) and on the [docs page](https://fortitude21.com/dangerous-goods-api).
 
@@ -47,7 +49,15 @@ curl -X POST "https://fortitude21.com/api/adr-points" \
 
 In `adr-points`, each line is `UN number : packing group : litres or kg per package : number of packages`. Give the packing group where the UN number has entries in more than one transport category, such as 1263 paint. If one line cannot be read, the API refuses the whole load. It never totals a load without that line.
 
-The [examples](examples) folder makes one call to each tool:
+In `cbam`, `origin` takes an ISO code such as `CN` or an English name such as `Viet Nam`, and `period` takes `2026-Q1` to `2026-Q4` or a year from 2027. Several lines go in `l` as `goods:origin:tonnes`:
+
+```bash
+curl "https://fortitude21.com/api/cbam?l=7310:CN:30,7310:VN:30&period=2026-Q1"
+```
+
+Below 50 tonnes a year nothing is owed: `owed` is `none`, and the totals show what the goods would owe once the year passes the threshold. `summary` says which applies in one sentence.
+
+The [examples](examples) folder makes one call to each of the six dangerous goods tools:
 
 | File | Runs with |
 | --- | --- |
@@ -66,6 +76,7 @@ The [examples](examples) folder makes one call to each tool:
 | `cite` | A credit line with that link. Show it next to the result. |
 | `docs` | The section of the docs page for this endpoint. |
 | `check.entries[].may_carry` | `un-decode` with `un=`: `ok`, `viscous` (viscous liquids only), `combination` (as the outer of a combination packaging), `density` (only if the liquid is no denser than the mark allows; see `typical_relative_density`) or `no`, with `reasons`. |
+| `summary` | `cbam` and `uk-cbam`: the answer in one sentence, threshold included. |
 | `publisher` | Fortitude21 products that fit the answer, who can buy them (businesses, on quote) and a quote link. |
 
 An input the tool cannot read returns an error, not a guess:
@@ -91,7 +102,7 @@ Add `lang=ja` to get Japanese text where a tool has it.
 
 ## Example responses
 
-Real responses from the live API, captured on 13 October 2026 with the example URLs above. Lines starting `//` mark what was cut for length.
+Real responses from the live API, captured on 13 October 2026 (the two CBAM examples on 18 November 2026) with the example URLs above. Lines starting `//` mark what was cut for length.
 
 <details>
 <summary><code>/api/un-packaging?un=1203</code></summary>
@@ -338,15 +349,90 @@ Due dates count from the current month, so this answer changes over time.
 
 </details>
 
+<details>
+<summary><code>/api/cbam?cn=7310&origin=CN&tonnes=10&period=2026-Q1</code></summary>
+
+```jsonc
+{
+  "ok": true,
+  "summary": "Under the 50-tonne threshold (10 t this year), so nothing is owed. If the year's cement, fertiliser, iron and steel and aluminium imports pass 50 t, these goods need 32.89 certificates, about €2,479 at €75.36 a certificate (the published price for Q1 2026).",
+  "scheme": "EU CBAM, definitive period",
+  "period": "2026-Q1",
+  "price_eur_per_certificate": 75.36,
+  "price_basis": "published price for 2026-Q1",
+  "free_allocation": { "cbam_factor": 0.975, "cscf": 1, "path": "current law" },
+  "threshold": { "tonnes_this_year": 10, "limit_tonnes": 50, "over": false },
+  "owed": "none",
+  "lines": [
+    {
+      "cn": "7310",
+      // goods: the official CN description
+      "country": "CN",
+      "country_name": "China",
+      "default_table": "CN",
+      "quantity": 10,
+      "default_value": 4.312,
+      "mark_up": 0.1,
+      "see_with_mark_up": 4.7432,
+      "benchmark": 1.491,
+      "route": "C",
+      "embedded_emissions": 47.432,
+      "free_allocation_adjustment": 14.53725,
+      "certificates": 32.89475,
+      "cost_eur": 2478.94836,
+      "owed": false
+    }
+  ],
+  "total": { "certificates": 32.89475, "cost_eur": 2478.94836, "owed_certificates": 0, "owed_cost_eur": 0 },
+  "cite": "EU CBAM calculator, Fortitude21: https://fortitude21.com/cbam-calculator?l=7310%3ACN%3A10&p=2026-Q1",
+  // note, tool, docs, publisher
+}
+```
+
+</details>
+
+<details>
+<summary><code>/api/uk-cbam?code=73102990&tonnes=10&origin=CN</code></summary>
+
+```jsonc
+{
+  "ok": true,
+  "summary": "UK CBAM liability about £428 on 44.18 t CO₂e embedded emissions, at the illustrative rates GOV.UK published on 16 October 2026. Owed only once CBAM goods pass £50,000 by customs value over 12 months; imports after that date pay.",
+  "scheme": "UK CBAM, from 1 January 2027",
+  "threshold": { "value_gbp_last_12_months": null, "limit_gbp": 50000, "over": null },
+  "lines": [
+    {
+      "commodity_code": "73102990",
+      // goods: the official commodity code description
+      "sector": "iron-steel",
+      "tonnes": 10,
+      "uk_default": 4.418,
+      "embedded_emissions": 44.18,
+      "rate_gbp": 9.69,
+      "rate_basis": "illustrative",
+      "liability_gbp": 428.1042
+    }
+  ],
+  "total": { "embedded_emissions": 44.18, "liability_gbp": 428.1042 },
+  "eu_comparison_2027": { "country": "CN", "certificates": 37.5795, "cost_eur": 3093.54, "price_eur": 82.32 },
+  "assumed": ["The rates are the illustrative rates GOV.UK published on 16 October 2026, for planning. HMRC publishes the rates for January to March 2027 before the end of 2026; send rate-iron-steel= (and the other sectors) to use your own."],
+  "cite": "UK CBAM calculator, Fortitude21: https://fortitude21.com/uk-cbam-calculator?l=73102990%3A10&origin=CN",
+  // note, tool, docs, publisher
+}
+```
+
+</details>
+
 ## MCP server
 
-The remote MCP server runs the six tools above plus eight tools over the Fortitude21 product catalogue.
+The remote MCP server runs the eight tools above plus eight tools over the Fortitude21 product catalogue.
 
 - Endpoint: `https://fortitude21.com/mcp`
 - Transport: Streamable HTTP (POST, JSON-RPC 2.0). No auth.
 - Dangerous goods tools, all read-only: `un_number_packaging`, `decode_un_packaging_mark`, `ibc_inspection_dates`, `adr_1000_points`, `bund_size`, `jerry_can_quantity`.
+- CBAM tools, both read-only: `cbam_cost` (EU) and `uk_cbam_cost` (UK).
 - Catalogue tools: `search_products`, `get_product_details`, `compare_products`, `check_product_requirements`, `get_product_documents`, `get_product_pricing` and `get_product_categories` are read-only. `create_quote_request` sends an enquiry for a person at Fortitude21 to price. It needs the buyer's consent and creates no order. Docs: https://fortitude21.com/products-api
-- `https://fortitude21.com/mcp/directory` serves the six dangerous goods tools only.
+- `https://fortitude21.com/mcp/directory` serves the eight calculators only, without the catalogue tools.
 - A plain GET on the endpoint returns a JSON description of the server.
 - Listed in the official MCP Registry as `com.fortitude21/dangerous-goods`.
 
@@ -431,4 +517,4 @@ The [MIT License](LICENSE) covers the example code in this repository. It does n
 
 ## About
 
-Fortitude21 is the trading name of JCDC Ventures Pte. Ltd., a Singapore company (UEN 202119128E). It makes UN-approved steel and plastic jerry cans, pails, tins, water cans and spill containment, and sells to businesses on quote. Questions about the API, or a field you need: david@fortitude21.com.
+Fortitude21 is the trading name of JCDC Ventures Pte. Ltd., a Singapore company (UEN 202119128E). It makes UN-approved steel and plastic jerry cans, pails, tins and water cans, supplies spill containment, and sells to businesses on quote. Questions about the API, or a field you need: David@fortitude21.com.
