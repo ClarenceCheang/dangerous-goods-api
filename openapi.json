@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Fortitude21 API: dangerous goods tools and product catalogue",
-    "version": "1.1.0",
-    "description": "Free, keyless JSON API from Fortitude21, in two halves.\n\nThe tools answer dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities.\n\nThe catalogue under /api/v1/ covers what Fortitude21 makes: steel, stainless, aluminium, tinplate and UN-rated HDPE jerry cans, pails, tins, drums, spill pallets, closures and handling equipment. Search and filter by material, capacity, certification and application, fetch one product in full, compare products on the attributes they all publish, read indicative pricing, list documentation, and send a quotation request.\n\nCORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher`. The same tools are an MCP server at https://fortitude21.com/mcp.\n\nTwo things to rely on: the catalogue is read-only, with no write path at any version, and any price is indicative and never a quotation. The quotation request creates an enquiry for a person to price, not an order. Tool answers are general information; check the rules for your own load.",
+    "version": "1.2.0",
+    "description": "Free, keyless JSON API from Fortitude21, in two halves.\n\nThe tools answer dangerous goods packaging questions from the regulations: the UN drums, jerricans and IBCs a UN number may use and the largest size of each (ADR 2025 Table A and its packing instructions), what a UN packaging mark means, IBC test and inspection dates, the ADR 1.1.3.6 small-load points, the bund capacity a store needs under a country's rule, and jerry can quantities. Two more work out carbon border costs on default values: EU CBAM certificates and their cost, and the UK CBAM liability from 2027.\n\nThe catalogue under /api/v1/ covers what Fortitude21 makes: steel, stainless, aluminium, tinplate and UN-rated HDPE jerry cans, pails, tins, drums, spill pallets, closures and handling equipment. Search and filter by material, capacity, certification and application, fetch one product in full, compare products on the attributes they all publish, read indicative pricing, list documentation, and send a quotation request.\n\nCORS is open and there is no key or sign-up. Every answer carries `cite` (credit it with a link) and `publisher`. The same tools are an MCP server at https://fortitude21.com/mcp.\n\nTwo things to rely on: the catalogue is read-only, with no write path at any version, and any price is indicative and never a quotation. The quotation request creates an enquiry for a person to price, not an order. Tool answers are general information; check the rules for your own load.",
     "contact": {
       "name": "Fortitude21",
       "email": "David@fortitude21.com",
@@ -1121,6 +1121,439 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/jerryCanQuantity"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/cbam": {
+      "get": {
+        "operationId": "cbamCost",
+        "summary": "EU CBAM certificates and cost",
+        "description": "Certificates owed on goods imported into the EU after the free allocation adjustment, their cost at the official price for the period of import, and the 50-tonne threshold, on EU default values. Covers cement, fertilisers, iron and steel, aluminium and hydrogen.",
+        "parameters": [
+          {
+            "name": "cn",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "CN code, 4 to 10 digits, e.g. 7310; or words, which return candidates when several goods fit"
+            },
+            "description": "CN code, 4 to 10 digits, e.g. 7310; or words, which return candidates when several goods fit",
+            "example": "7310"
+          },
+          {
+            "name": "origin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Country of production: ISO code (CN) or English name (China). EU, EEA and Swiss origins are refused as outside CBAM"
+            },
+            "description": "Country of production: ISO code (CN) or English name (China). EU, EEA and Swiss origins are refused as outside CBAM",
+            "example": "CN"
+          },
+          {
+            "name": "tonnes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass in tonnes"
+            },
+            "description": "Net mass in tonnes",
+            "example": 10
+          },
+          {
+            "name": "kg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass in kg, instead of tonnes"
+            },
+            "description": "Net mass in kg, instead of tonnes",
+            "example": 500
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Several lines instead of cn, origin and tonnes: goods:origin:tonnes, comma-separated, e.g. 7310:CN:30,7310:VN:30"
+            },
+            "description": "Several lines instead of cn, origin and tonnes: goods:origin:tonnes, comma-separated, e.g. 7310:CN:30,7310:VN:30",
+            "example": "7310:CN:30,7310:VN:30"
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "2026-Q1 to 2026-Q4, or a year from 2027 to 2034. Default: the current quarter"
+            },
+            "description": "2026-Q1 to 2026-Q4, or a year from 2027 to 2034. Default: the current quarter",
+            "example": "2026-Q1"
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Certificate price in EUR, to override the published price"
+            },
+            "description": "Certificate price in EUR, to override the published price",
+            "example": 80
+          },
+          {
+            "name": "other_tonnes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Other CBAM goods imported this year, tonnes, counted for the 50-tonne threshold"
+            },
+            "description": "Other CBAM goods imported this year, tonnes, counted for the 50-tonne threshold",
+            "example": 20
+          },
+          {
+            "name": "unit_kg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass of one item in kg, for the cost per item"
+            },
+            "description": "Net mass of one item in kg, for the cost per item",
+            "example": 3.1
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "law (default), or proposal for COM(2026) 616, which is not law",
+              "enum": [
+                "law",
+                "proposal"
+              ]
+            },
+            "description": "law (default), or proposal for COM(2026) 616, which is not law",
+            "example": "law"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja",
+            "example": "en"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/cbamCost"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "cbamCostPost",
+        "summary": "EU CBAM certificates and cost (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "cn": {
+                          "type": "string",
+                          "description": "CN code or words"
+                        },
+                        "origin": {
+                          "type": "string",
+                          "description": "Country of production"
+                        },
+                        "tonnes": {
+                          "type": "number",
+                          "description": "Net mass in tonnes"
+                        }
+                      },
+                      "required": [
+                        "cn",
+                        "origin",
+                        "tonnes"
+                      ]
+                    }
+                  },
+                  "cn": {
+                    "type": "string",
+                    "description": "Single line: CN code or words"
+                  },
+                  "origin": {
+                    "type": "string",
+                    "description": "Single line: country of production"
+                  },
+                  "tonnes": {
+                    "type": "number",
+                    "description": "Single line: net mass in tonnes"
+                  },
+                  "period": {
+                    "type": "string",
+                    "description": "2026-Q1 to 2026-Q4, or a year from 2027"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Certificate price in EUR"
+                  },
+                  "other_tonnes": {
+                    "type": "number",
+                    "description": "Other CBAM goods this year, tonnes"
+                  },
+                  "unit_kg": {
+                    "type": "number",
+                    "description": "Net mass of one item, kg"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "law or proposal",
+                    "enum": [
+                      "law",
+                      "proposal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/cbamCost"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/uk-cbam": {
+      "get": {
+        "operationId": "ukCbamCost",
+        "summary": "UK CBAM liability",
+        "description": "UK CBAM liability in pounds on goods imported from 1 January 2027: tonnes x the UK default for the commodity code x the sector rate, with the GBP 50,000 threshold and, given an origin, the EU CBAM cost of the same goods in 2027. Rates are illustrative until HMRC publishes them.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "UK commodity code, 8 digits, e.g. 73102990; a shorter code or words return candidates"
+            },
+            "description": "UK commodity code, 8 digits, e.g. 73102990; a shorter code or words return candidates",
+            "example": "73102990"
+          },
+          {
+            "name": "tonnes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass in tonnes"
+            },
+            "description": "Net mass in tonnes",
+            "example": 10
+          },
+          {
+            "name": "kg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass in kg, instead of tonnes"
+            },
+            "description": "Net mass in kg, instead of tonnes",
+            "example": 500
+          },
+          {
+            "name": "l",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Several lines instead of code and tonnes: code:tonnes, comma-separated, e.g. 73102990:10,76011010:5"
+            },
+            "description": "Several lines instead of code and tonnes: code:tonnes, comma-separated, e.g. 73102990:10,76011010:5",
+            "example": "73102990:10,76011010:5"
+          },
+          {
+            "name": "value_gbp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Customs value of all CBAM goods imported over the last 12 months, GBP, for the threshold"
+            },
+            "description": "Customs value of all CBAM goods imported over the last 12 months, GBP, for the threshold",
+            "example": 80000
+          },
+          {
+            "name": "origin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Optional country of production, to add the EU CBAM figure for 2027"
+            },
+            "description": "Optional country of production, to add the EU CBAM figure for 2027",
+            "example": "CN"
+          },
+          {
+            "name": "unit_kg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Net mass of one item in kg, for the liability per item"
+            },
+            "description": "Net mass of one item in kg, for the liability per item",
+            "example": 3.1
+          },
+          {
+            "name": "rate-iron-steel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Your own rate for iron and steel, GBP per t CO2e, in place of the illustrative one"
+            },
+            "description": "Your own rate for iron and steel, GBP per t CO2e, in place of the illustrative one",
+            "example": 9.69
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "en or ja",
+              "enum": [
+                "en",
+                "ja"
+              ]
+            },
+            "description": "en or ja",
+            "example": "en"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ukCbamCost"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "x-openai-isConsequential": false
+      },
+      "post": {
+        "operationId": "ukCbamCostPost",
+        "summary": "UK CBAM liability (JSON body)",
+        "description": "The same as GET, with the parameters as a JSON object.",
+        "x-openai-isConsequential": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Commodity code or words"
+                        },
+                        "tonnes": {
+                          "type": "number",
+                          "description": "Net mass in tonnes"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "tonnes"
+                      ]
+                    }
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "Single line: commodity code or words"
+                  },
+                  "tonnes": {
+                    "type": "number",
+                    "description": "Single line: net mass in tonnes"
+                  },
+                  "value_gbp": {
+                    "type": "number",
+                    "description": "Customs value of CBAM goods over 12 months, GBP"
+                  },
+                  "origin": {
+                    "type": "string",
+                    "description": "Country of production, for the EU comparison"
+                  },
+                  "unit_kg": {
+                    "type": "number",
+                    "description": "Net mass of one item, kg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ukCbamCost"
           },
           "400": {
             "$ref": "#/components/responses/Error"
@@ -2464,6 +2897,159 @@
                 "working": {
                   "type": "string",
                   "description": "The arithmetic behind the figure"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "cbamCost": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "summary": {
+                  "type": "string",
+                  "description": "The result in one sentence, threshold included"
+                },
+                "period": {
+                  "type": "string",
+                  "description": "Period of import used"
+                },
+                "price_eur_per_certificate": {
+                  "type": "number",
+                  "description": "Certificate price used, EUR"
+                },
+                "price_basis": {
+                  "type": "string",
+                  "description": "Published for the period, given in the request, or the latest published"
+                },
+                "threshold": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "tonnes_this_year, limit_tonnes (50) and over"
+                },
+                "owed": {
+                  "type": "string",
+                  "description": "all, some (hydrogen only, under the threshold) or none",
+                  "enum": [
+                    "all",
+                    "some",
+                    "none"
+                  ]
+                },
+                "lines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "description": "Per line: cn, goods, country, default_table, default_value, mark_up, see_with_mark_up, benchmark, route, embedded_emissions, free_allocation_adjustment, certificates, cost_eur, owed"
+                },
+                "total": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "certificates and cost_eur for every line; owed_certificates and owed_cost_eur after the threshold"
+                },
+                "cite": {
+                  "type": "string",
+                  "description": "Credit line and link to the same answer on fortitude21.com. Show it with the figures."
+                },
+                "docs": {
+                  "type": "string",
+                  "description": "Documentation for this endpoint"
+                },
+                "assumed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "How the API read inputs it had to interpret (a substance name, a place, a date, a missing value), and parameters it ignored"
+                },
+                "publisher": {
+                  "$ref": "#/components/schemas/Publisher"
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            }
+          }
+        }
+      },
+      "ukCbamCost": {
+        "description": "The answer",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                },
+                "tool": {
+                  "type": "string",
+                  "description": "The tool page showing this answer"
+                },
+                "summary": {
+                  "type": "string",
+                  "description": "The result in one sentence, threshold included"
+                },
+                "threshold": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "value_gbp_last_12_months, limit_gbp (50,000) and over"
+                },
+                "lines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "description": "Per line: commodity_code, goods, sector, tonnes, uk_default, embedded_emissions, rate_gbp, rate_basis, liability_gbp"
+                },
+                "total": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "embedded_emissions and liability_gbp"
+                },
+                "eu_comparison_2027": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": true,
+                  "description": "With origin: country, certificates, cost_eur and price_eur under EU CBAM in 2027"
                 },
                 "cite": {
                   "type": "string",
