@@ -89,10 +89,10 @@ curl "https://fortitude21.com/api/un-packaging?un=9999"
 // HTTP 400
 {
   "ok": false,
-  "error": "This finder covers 72 UN numbers of liquids. This one is not among them: check the Dangerous Goods List, or send it to us.",
+  "error": "This finder covers 157 UN numbers of liquids. This one is not among them: check the Dangerous Goods List, or send it to us.",
   "tool": "https://fortitude21.com/un-number-packaging-finder?un=9999",
   "cite": "UN number packaging finder, Fortitude21: https://fortitude21.com/un-number-packaging-finder?un=9999",
-  "covered_un_numbers": ["1090", "1114", "1120", "..."],
+  "covered_un_numbers": ["1090", "1104", "1105", "..."],
   "docs": "https://fortitude21.com/dangerous-goods-api#un-packaging",
   // publisher
 }
