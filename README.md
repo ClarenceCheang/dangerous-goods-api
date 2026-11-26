@@ -1,5 +1,7 @@
 # Fortitude21 Dangerous Goods API and MCP Server
 
+[![Fortitude21 Dangerous Goods Tools MCP connector](https://glama.ai/mcp/connectors/com.fortitude21/dangerous-goods/badges/score.svg)](https://glama.ai/mcp/connectors/com.fortitude21/dangerous-goods)
+
 A free JSON API and remote MCP server for dangerous goods packaging questions. Send a UN number and get the UN drums, jerricans and IBCs it may use under ADR 2025, with the largest size of each. Decode a UN packaging mark part by part and check it against a substance. Total the ADR 1.1.3.6 points for a small load. Work out when an IBC's leakproofness test and 2.5 and 5-year inspections fall due. Size a bund or spill pallet under a country's rule. Turn people and days, or distance and fuel use, into a count of jerry cans. Work out the EU CBAM certificates and their cost, or the UK CBAM liability, on imported steel, aluminium, cement, fertiliser and hydrogen. There is no key and no sign-up, and CORS is open. Each answer names the regulation it rests on and links to the same answer on fortitude21.com.
 
 - Docs with examples: https://fortitude21.com/dangerous-goods-api
